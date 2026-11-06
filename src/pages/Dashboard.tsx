@@ -7,8 +7,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAzure } from '../context/AzureContext';
-import { createMsalCredential, queryLogAnalytics } from '../services/azure';
-import { useMsal } from '@azure/msal-react';
+import { queryLogAnalytics } from '../services/azure';
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis,
   CartesianGrid, Tooltip as RTooltip, Legend,
@@ -194,11 +193,8 @@ function Tip({ text, children }: { text: string; children: React.ReactNode }) {
 /* ------------------------------------------------------------------ */
 
 export default function Dashboard() {
-  const { config, workspaceData } = useAzure();
-  const { instance } = useMsal();
+  const { config, workspaceData, getCredential } = useAzure();
   const service = config.apimService;
-
-  const getCredential = useCallback(() => createMsalCredential(instance), [instance]);
 
   /* --- Shared toolbar state ---------------------------------------- */
   const tb = useToolbarState();

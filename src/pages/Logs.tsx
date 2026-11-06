@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { ScrollText, Search, X, ArrowUp, ArrowDown, ArrowUpDown, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAzure } from '../context/AzureContext';
-import { createMsalCredential, queryLogAnalytics } from '../services/azure';
-import { useMsal } from '@azure/msal-react';
+import { queryLogAnalytics } from '../services/azure';
 import AnalyticsToolbar, {
   useToolbarState, TIME_RANGES,
   type TimeRange,
@@ -62,8 +61,7 @@ function formatTimestamp(ts: string): string {
 }
 
 export default function Logs() {
-  const { config } = useAzure();
-  const { instance } = useMsal();
+  const { config, getCredential } = useAzure();
   const navigate = useNavigate();
 
   const tb = useToolbarState();
@@ -94,8 +92,6 @@ export default function Logs() {
   const panelRef = useRef<HTMLDivElement>(null);
 
   const service = config.apimService;
-
-  const getCredential = useCallback(() => createMsalCredential(instance), [instance]);
 
   const fetchLogs = useCallback(async () => {
     if (!service) return;

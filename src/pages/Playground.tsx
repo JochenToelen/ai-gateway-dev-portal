@@ -135,14 +135,20 @@ export default function Playground() {
   /* --- Build request URL ------------------------------------------ */
   const buildUrl = useCallback(() => {
     if (!config.apimService || !selectedApi) return '';
-    const path = selectedApi.path.replace(/^\//, '');
+    const path = selectedApi.path.replace(/^\/+|\/+$/g, '');
     const deployment = encodeURIComponent(model);
 
     let suffix: string;
     if (apiVersion === 'v1') {
+      const lowerPath = path.toLowerCase();
+      const v1Path = lowerPath.endsWith('/openai/v1')
+        ? path
+        : lowerPath.endsWith('/openai')
+          ? `${path}/v1`
+          : `${path}/openai/v1`;
       suffix = apiType === 'completions'
-        ? `/${path}/chat/completions`
-        : `/${path}/responses`;
+        ? `/${v1Path}/chat/completions`
+        : `/${v1Path}/responses`;
     } else {
       suffix = apiType === 'completions'
         ? `/${path}/deployments/${deployment}/chat/completions?api-version=${encodeURIComponent(apiVersion)}`

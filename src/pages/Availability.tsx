@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { ShieldCheck, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAzure } from '../context/AzureContext';
-import { createMsalCredential, queryLogAnalytics } from '../services/azure';
-import { useMsal } from '@azure/msal-react';
+import { queryLogAnalytics } from '../services/azure';
 import {
   ResponsiveContainer, LineChart, Line, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, Legend,
@@ -220,11 +219,9 @@ function pivot(
 /* ------------------------------------------------------------------ */
 
 export default function Availability() {
-  const { config } = useAzure();
-  const { instance } = useMsal();
+  const { config, getCredential } = useAzure();
   const service = config.apimService;
   const navigate = useNavigate();
-  const getCredential = useCallback(() => createMsalCredential(instance), [instance]);
 
   const tb = useToolbarState();
   const { timeRange, customStart, customEnd, modelFilter, subFilter, containerRef,
