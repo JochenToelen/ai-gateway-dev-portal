@@ -218,8 +218,7 @@ export async function getLinkedMonitorResource(
   // --- Strategy 3: Azure Monitor Diagnostic Settings ---
   try {
     const monitorClient = new MonitorClient(credential, apimService.subscriptionId);
-    const result = await monitorClient.diagnosticSettings.list(apimService.id);
-    for (const setting of result.value ?? []) {
+    for await (const setting of monitorClient.diagnosticSettings.list(apimService.id)) {
       if (setting.workspaceId) {
         const nameMatch = /\/workspaces\/([^/]+)$/i.exec(setting.workspaceId);
         const rgMatch = /resourceGroups\/([^/]+)/i.exec(setting.workspaceId);

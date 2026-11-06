@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-type LegendEntry = { dataKey?: string | number | ((obj: unknown) => unknown) };
+interface LegendEntry { dataKey?: string | number | ((obj: unknown) => unknown) }
 
 export default function useLegendHighlight() {
   const [highlighted, setHighlighted] = useState<string | null>(null);

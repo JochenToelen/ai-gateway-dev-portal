@@ -1,7 +1,7 @@
 import SearchBar from './SearchBar';
 import WorkspaceSelector from './WorkspaceSelector';
 import UserMenu from './UserMenu';
-import { Github } from 'lucide-react';
+import Github from './GithubIcon';
 
 export default function Header() {
 

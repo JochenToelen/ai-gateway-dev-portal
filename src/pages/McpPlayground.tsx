@@ -426,7 +426,7 @@ export default function McpPlayground() {
           const start = Date.now();
           try {
             const r = await client.request({ method: 'resources/list', params: {} }, ListResourcesResultSchema, { timeout: 120000 });
-            setResources((r.resources ?? []) as McpResource[]);
+            setResources((r.resources ?? []));
             const latencyMs = Date.now() - start;
             const lf = lastFetchRef.current;
             const trace = await buildEntryTrace(lf.reqUrl, lf.reqMethod, lf.reqHeaders, lf.reqBody, lf.respHeaders, lf.statusCode, latencyMs, lf.respBody ?? r);
@@ -440,7 +440,7 @@ export default function McpPlayground() {
           const start = Date.now();
           try {
             const r = await client.request({ method: 'prompts/list', params: {} }, ListPromptsResultSchema, { timeout: 120000 });
-            setPrompts((r.prompts ?? []) as McpPrompt[]);
+            setPrompts((r.prompts ?? []));
             const latencyMs = Date.now() - start;
             const lf = lastFetchRef.current;
             const trace = await buildEntryTrace(lf.reqUrl, lf.reqMethod, lf.reqHeaders, lf.reqBody, lf.respHeaders, lf.statusCode, latencyMs, lf.respBody ?? r);
@@ -454,7 +454,7 @@ export default function McpPlayground() {
           const start = Date.now();
           try {
             const r = await client.request({ method: 'tools/list', params: {} }, ListToolsResultSchema, { timeout: 120000 });
-            setTools((r.tools ?? []) as McpTool[]);
+            setTools((r.tools ?? []));
             const latencyMs = Date.now() - start;
             const lf = lastFetchRef.current;
             const trace = await buildEntryTrace(lf.reqUrl, lf.reqMethod, lf.reqHeaders, lf.reqBody, lf.respHeaders, lf.statusCode, latencyMs, lf.respBody ?? r);
