@@ -44,7 +44,6 @@ import {
   getApiPolicyXml,
   parseBackendIdFromPolicy,
   listApimApiTags,
-  type LinkedMonitorResult,
 } from '../services/azure';
 import { useTokenAuth } from './TokenAuthContext';
 
@@ -265,7 +264,7 @@ export function AzureProvider({ children }: { children: ReactNode }) {
 
         const monitorPromise = getLinkedMonitorResource(getCredential(), service).catch((err) => {
           console.warn('Failed to detect linked monitor:', err);
-          return { monitorResource: null, appInsightsResource: null } as LinkedMonitorResult;
+          return { monitorResource: null, appInsightsResource: null };
         });
 
         const apiCenterPromise = getLinkedApiCenter(getCredential(), service).catch((err) => {
@@ -357,7 +356,7 @@ export function AzureProvider({ children }: { children: ReactNode }) {
               ]);
               const backendId = parseBackendIdFromPolicy(policyXml);
               if (backendId && backendMap.has(backendId)) {
-                return { ...api, backendId, providerType: backendMap.get(backendId)!, tags } as InferenceApi;
+                return { ...api, backendId, providerType: backendMap.get(backendId)!, tags };
               }
               return null;
             }),
@@ -377,11 +376,9 @@ export function AzureProvider({ children }: { children: ReactNode }) {
           const mcpResults = await Promise.allSettled(
             mcpApis.map(async (api) => {
               const tags = await listApimApiTags(cred, subscriptionId, resourceGroup, name, api.name).catch(() => []);
-              return {
-                ...api,
-                source: (api.mcpTools.length > 0 ? 'api' : 'mcp-server') as McpSource,
-                tags,
-              } as McpServer;
+              const source: McpSource = api.mcpTools.length > 0 ? 'api' : 'mcp-server';
+              const server: McpServer = { ...api, source, tags };
+              return server;
             }),
           );
           const mcpServers: McpServer[] = [];
@@ -399,7 +396,7 @@ export function AzureProvider({ children }: { children: ReactNode }) {
           const a2aResults = await Promise.allSettled(
             a2aApis.map(async (api) => {
               const tags = await listApimApiTags(cred, subscriptionId, resourceGroup, name, api.name).catch(() => []);
-              return { ...api, tags } as A2aServer;
+              return { ...api, tags };
             }),
           );
           const a2aServers: A2aServer[] = [];

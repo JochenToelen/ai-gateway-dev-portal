@@ -37,7 +37,7 @@ async function startApp() {
       'account' in event.payload &&
       event.payload.account
     ) {
-      msalInstance.setActiveAccount(event.payload.account as Parameters<typeof msalInstance.setActiveAccount>[0]);
+      msalInstance.setActiveAccount(event.payload.account);
     }
   });
 

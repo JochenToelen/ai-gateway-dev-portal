@@ -42,7 +42,7 @@ function gatewayProxy(): Plugin {
           if (!v || k === 'x-gateway-base' || k === 'host' || k === 'origin' || k === 'referer' || k === 'connection') continue;
           fwdHeaders[HEADER_CASING[k] ?? k] = v;
         }
-        fwdHeaders['Host'] = targetUrl.host;
+        fwdHeaders.Host = targetUrl.host;
 
         const proxyReq = transport(targetUrl, {
           method: req.method,
