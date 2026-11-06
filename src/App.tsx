@@ -26,7 +26,6 @@ import Requests from './pages/Requests';
 import Tokens from './pages/Tokens';
 import Performance from './pages/Performance';
 import Availability from './pages/Availability';
-import Labs from './pages/Labs';
 
 function LoadingScreen() {
   return (
@@ -66,7 +65,6 @@ function AuthenticatedRoutes() {
             <Route path="tokens" element={<Tokens />} />
             <Route path="performance" element={<Performance />} />
             <Route path="availability" element={<Availability />} />
-            <Route path="labs" element={<Labs />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Routes>

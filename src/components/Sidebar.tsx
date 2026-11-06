@@ -13,7 +13,6 @@ import {
   ShieldCheck,
   Activity,
   ScrollText,
-  FlaskConical,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -34,7 +33,6 @@ const navItems: NavEntry[] = [
   { type: 'link', to: '/subscriptions', label: 'Subscriptions', Icon: KeyRound },
   { type: 'divider' },
   { type: 'link', to: '/playground', label: 'Playground', Icon: Play },
-  { type: 'link', to: '/labs', label: 'Labs', Icon: FlaskConical },
   { type: 'divider' },
   { type: 'link', to: '/logs', label: 'Logs', Icon: ScrollText },
   { type: 'group-label', label: 'Analytics' },
