@@ -34,6 +34,28 @@ export interface FoundryProject {
   resourceGroup: string;
 }
 
+export interface ApiCenterResource {
+  id: string;
+  name: string;
+  resourceGroup: string;
+  subscriptionId: string;
+}
+
+export interface ApiCenterCatalogResource {
+  id: string;
+  name: string;
+  type?: string;
+  properties: {
+    title?: string;
+    summary?: string;
+    description?: string;
+    kind?: string;
+    lifecycleStage?: string;
+    [key: string]: unknown;
+  };
+  systemData?: Record<string, unknown>;
+}
+
 export interface MonitorResource {
   id: string;
   name: string;
@@ -199,5 +221,5 @@ export interface PortalConfig {
   monitorResource: MonitorResource | null;
   appInsightsResource: AppInsightsResource | null;
   foundryProject: FoundryProject | null;
-  apiCenterName: string | null;
+  apiCenter: ApiCenterResource | null;
 }

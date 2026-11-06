@@ -140,7 +140,7 @@ export function AzureProvider({ children }: { children: ReactNode }) {
     monitorResource: null,
     appInsightsResource: null,
     foundryProject: null,
-    apiCenterName: null,
+    apiCenter: null,
   });
 
   const [loading, setLoading] = useState<LoadingState>({
@@ -242,7 +242,7 @@ export function AzureProvider({ children }: { children: ReactNode }) {
 
   const selectApimService = useCallback(
     async (service: ApimService) => {
-      setConfig((c) => ({ ...c, apimService: service, apimWorkspace: null, monitorResource: null, appInsightsResource: null, apiCenterName: null }));
+      setConfig((c) => ({ ...c, apimService: service, apimWorkspace: null, monitorResource: null, appInsightsResource: null, apiCenter: null }));
       setApimWorkspaces([]);
 
       // Workspaces only supported on Premium and PremiumV2 tiers
@@ -272,13 +272,13 @@ export function AzureProvider({ children }: { children: ReactNode }) {
           return null;
         });
 
-        const [workspaces, linkedResources, apiCenterName] = await Promise.all([workspacesPromise, monitorPromise, apiCenterPromise]);
+        const [workspaces, linkedResources, apiCenter] = await Promise.all([workspacesPromise, monitorPromise, apiCenterPromise]);
         setApimWorkspaces(workspaces);
         setConfig((c) => ({
           ...c,
           monitorResource: linkedResources.monitorResource,
           appInsightsResource: linkedResources.appInsightsResource,
-          apiCenterName,
+          apiCenter,
         }));
       } catch (err) {
         console.error('Failed to load APIM workspaces:', err);

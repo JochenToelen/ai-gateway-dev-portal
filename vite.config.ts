@@ -1,5 +1,6 @@
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
+import { createPricingHandler } from './server/pricing-api.mjs'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { request as httpsRequest } from 'node:https'
 import { request as httpRequest } from 'node:http'
@@ -74,10 +75,24 @@ function gatewayProxy(): Plugin {
   };
 }
 
+/**
+ * Serves /api/pricing in the dev server with the same handler as production
+ * (local JSON file by default; PRICING_BLOB_URL switches to blob storage via `az login`).
+ */
+function pricingApi(env: Record<string, string>): Plugin {
+  const handler = createPricingHandler({ ...env, ...process.env });
+  return {
+    name: 'pricing-api',
+    configureServer(server) {
+      server.middlewares.use('/api/pricing', (req: IncomingMessage, res: ServerResponse) => { void handler(req, res); });
+    },
+  };
+}
+
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [react(), gatewayProxy()],
+export default defineConfig(({ mode }) => ({
+  plugins: [react(), gatewayProxy(), pricingApi(loadEnv(mode, process.cwd(), ''))],
   build: {
     chunkSizeWarningLimit: 600,
   },
-})
+}))

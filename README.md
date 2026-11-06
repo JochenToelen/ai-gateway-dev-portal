@@ -295,6 +295,25 @@ jobs:
 
 ---
 
+## AI model pricing and estimated cost
+
+The **AI Model Pricing** page maintains effective-dated token prices (per 1M input, cached input and output tokens). The **AI Gateway consumption** and **Tokens** pages use them to show *estimated* model cost from `ApiManagementGatewayLlmLog` (joined to `ApiManagementGatewayLogs` on `CorrelationId`). Pricing is resolved inside Log Analytics; the browser only receives daily aggregates. Requests with no matching rule are flagged as missing pricing and excluded from cost totals. Cached tokens are not in current APIM telemetry, so they count as 0.
+
+The pricing table is one JSON document behind the same-origin endpoint `/api/pricing` (`server/pricing-api.mjs`). The browser holds no storage credentials or tokens.
+
+| Environment | Where the document lives | How it is accessed |
+| --- | --- | --- |
+| Local (`npm run dev`) | `./data/ai-model-pricing.json` (override with `PRICING_FILE`; git-ignored) | Plain file on disk, created on first save |
+| Azure Container Apps | Blob set in `PRICING_BLOB_URL` | The app's **managed identity** (`DefaultAzureCredential`) |
+
+Container Apps setup:
+
+1. Build and deploy the image (`Dockerfile`; `server/server.mjs` serves the SPA and the API on port 8080).
+2. Enable a system-assigned managed identity on the Container App and give it **Storage Blob Data Contributor** on the container that holds the blob.
+3. Set `PRICING_BLOB_URL=https://<account>.blob.core.windows.net/<container>/ai-model-pricing.json`. No CORS rule is needed because the browser never calls storage.
+4. Optional: `PRICING_EDITORS` (comma-separated object ids or e-mails, as passed by Container Apps authentication in `X-MS-CLIENT-PRINCIPAL-ID`/`-NAME`) restricts who may change prices; others get read-only access. Unset means everyone who can reach the app can edit, so protect the app with Container Apps authentication.
+
+To debug against the cloud document locally, set `PRICING_BLOB_URL` in `.env` and run `az login` (your identity needs the same role). Every change is audited inside the document (who, when, old and new values), and concurrent edits are detected with ETags. Run tests with `npm test`.
 ## Project structure
 
 ```

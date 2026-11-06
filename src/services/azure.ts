@@ -3,7 +3,7 @@ import { ApiManagementClient } from '@azure/arm-apimanagement';
 import { SubscriptionClient } from '@azure/arm-resources-subscriptions';
 import { MonitorClient } from '@azure/arm-monitor';
 import { AzureMachineLearningServicesManagementClient } from '@azure/arm-machinelearning';
-import type { AzureTenant, AzureSubscription, ApimService, ApimWorkspace, FoundryProject, MonitorResource, AppInsightsResource, ApimSubscription, ApimApi, ApimProduct, ApimBackend, ProviderType, ApimApiDetail, ApimApiRevision, ApimApiRelease, ApimTag } from '../types';
+import type { AzureTenant, AzureSubscription, ApimService, ApimWorkspace, FoundryProject, ApiCenterResource, ApiCenterCatalogResource, MonitorResource, AppInsightsResource, ApimSubscription, ApimApi, ApimProduct, ApimBackend, ProviderType, ApimApiDetail, ApimApiRevision, ApimApiRelease, ApimTag } from '../types';
 import { managementScope } from '../config/msal';
 
 /**
@@ -246,7 +246,7 @@ export async function getLinkedMonitorResource(
 export async function getLinkedApiCenter(
   credential: MsalCredential,
   apimService: { subscriptionId: string; resourceGroup: string; name: string },
-): Promise<string | null> {
+): Promise<ApiCenterResource | null> {
   try {
     const tokenResult = await credential.getToken('https://management.azure.com/.default');
     const url = `https://management.azure.com/subscriptions/${encodeURIComponent(apimService.subscriptionId)}/resourceGroups/${encodeURIComponent(apimService.resourceGroup)}/providers/Microsoft.ApiManagement/service/${encodeURIComponent(apimService.name)}/providers/Microsoft.Resources/links?api-version=2016-09-01`;
@@ -260,14 +260,111 @@ export async function getLinkedApiCenter(
     for (const link of body.value ?? []) {
       const targetId = link.properties?.targetId;
       if (targetId && /Microsoft\.ApiCenter\/services\//i.test(targetId)) {
-        const match = /\/services\/([^/]+)\/?$/i.exec(targetId);
-        return match?.[1] ?? null;
+        const match = /^\/subscriptions\/([^/]+)\/resourceGroups\/([^/]+)\/providers\/Microsoft\.ApiCenter\/services\/([^/]+)\/?$/i.exec(targetId);
+        if (match) {
+          return {
+            id: targetId,
+            subscriptionId: match[1],
+            resourceGroup: match[2],
+            name: match[3],
+          };
+        }
       }
     }
   } catch (err) {
     console.warn('Failed to read API Center resource links:', err);
   }
   return null;
+}
+
+const API_CENTER_API_VERSION = '2024-03-01';
+
+function apiCenterWorkspaceUrl(apiCenter: ApiCenterResource): string {
+  return `https://management.azure.com${apiCenter.id}/workspaces/default`;
+}
+
+async function requestApiCenter<T>(credential: MsalCredential, url: string): Promise<T> {
+  const tokenResult = await credential.getToken('https://management.azure.com/.default');
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${tokenResult.token}` },
+  });
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`API Center request failed (${response.status}): ${detail || response.statusText}`);
+  }
+  return await response.json() as T;
+}
+
+async function listApiCenterResources(
+  credential: MsalCredential,
+  url: string,
+): Promise<ApiCenterCatalogResource[]> {
+  const resources: ApiCenterCatalogResource[] = [];
+  let nextUrl: string | undefined = url;
+  while (nextUrl) {
+    const page: { value?: ApiCenterCatalogResource[]; nextLink?: string } = await requestApiCenter<{
+      value?: ApiCenterCatalogResource[];
+      nextLink?: string;
+    }>(credential, nextUrl);
+    resources.push(...(page.value ?? []));
+    if (page.nextLink) {
+      const parsedNextUrl: URL = new URL(page.nextLink);
+      if (parsedNextUrl.origin !== 'https://management.azure.com') {
+        throw new Error('API Center returned an unexpected pagination URL.');
+      }
+      nextUrl = parsedNextUrl.toString();
+    } else {
+      nextUrl = undefined;
+    }
+  }
+  return resources;
+}
+
+/** List API assets in the default workspace of the API Center linked to APIM. */
+export function listApiCenterAssets(
+  credential: MsalCredential,
+  apiCenter: ApiCenterResource,
+): Promise<ApiCenterCatalogResource[]> {
+  return listApiCenterResources(
+    credential,
+    `${apiCenterWorkspaceUrl(apiCenter)}/apis?api-version=${API_CENTER_API_VERSION}`,
+  );
+}
+
+/** Get the full API Center API asset record. */
+export function getApiCenterAsset(
+  credential: MsalCredential,
+  apiCenter: ApiCenterResource,
+  apiName: string,
+): Promise<ApiCenterCatalogResource> {
+  return requestApiCenter(
+    credential,
+    `${apiCenterWorkspaceUrl(apiCenter)}/apis/${encodeURIComponent(apiName)}?api-version=${API_CENTER_API_VERSION}`,
+  );
+}
+
+/** List versions registered for an API Center API asset. */
+export function listApiCenterVersions(
+  credential: MsalCredential,
+  apiCenter: ApiCenterResource,
+  apiName: string,
+): Promise<ApiCenterCatalogResource[]> {
+  return listApiCenterResources(
+    credential,
+    `${apiCenterWorkspaceUrl(apiCenter)}/apis/${encodeURIComponent(apiName)}/versions?api-version=${API_CENTER_API_VERSION}`,
+  );
+}
+
+/** List deployments registered for an API Center API asset. */
+export function listApiCenterDeployments(
+  credential: MsalCredential,
+  apiCenter: ApiCenterResource,
+  apiName: string,
+): Promise<ApiCenterCatalogResource[]> {
+  return listApiCenterResources(
+    credential,
+    `${apiCenterWorkspaceUrl(apiCenter)}/apis/${encodeURIComponent(apiName)}/deployments?api-version=${API_CENTER_API_VERSION}`,
+  );
 }
 
 /**
@@ -1067,4 +1164,102 @@ export async function queryLogAnalytics(
     }
     return obj;
   });
+}
+
+// ===================================================
+// Cost Management
+// ===================================================
+
+export interface CostQueryResult {
+  columns: string[];
+  rows: (string | number | null)[][];
+}
+
+async function armPostWithRetry(
+  credential: MsalCredential,
+  url: string,
+  body: unknown,
+  what: string,
+): Promise<Response> {
+  const token = await credential.getToken('https://management.azure.com/.default');
+  if (!token) throw new Error('Failed to acquire token');
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token.token}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    if (res.status === 429 && attempt < 2) {
+      const wait = Number(res.headers.get('x-ms-ratelimit-microsoft.costmanagement-entity-retry-after')
+        ?? res.headers.get('Retry-After') ?? '5');
+      await new Promise((r) => setTimeout(r, Math.min(Math.max(wait, 1), 15) * 1000));
+      continue;
+    }
+    if (!res.ok) throw new Error(`${what} failed: ${res.status.toString()} ${res.statusText}`);
+    return res;
+  }
+}
+
+interface CostApiBody {
+  properties?: { columns?: { name?: string }[]; rows?: (string | number | null)[][]; nextLink?: string | null };
+}
+
+/** Cost Management query or forecast at an ARM scope such as /subscriptions/{id} */
+export async function queryCostManagement(
+  credential: MsalCredential,
+  scope: string,
+  body: object,
+  kind: 'query' | 'forecast' = 'query',
+): Promise<CostQueryResult> {
+  let url: string | null = `https://management.azure.com${scope}/providers/Microsoft.CostManagement/${kind}?api-version=2023-11-01`;
+  let columns: string[] = [];
+  const rows: (string | number | null)[][] = [];
+  for (let page = 0; url && page < 10; page++) {
+    const res = await armPostWithRetry(credential, url, body, `Cost Management ${kind}`);
+    const json = await res.json() as CostApiBody;
+    columns = (json.properties?.columns ?? []).map((c) => c.name ?? '');
+    rows.push(...(json.properties?.rows ?? []));
+    url = json.properties?.nextLink ?? null;
+  }
+  return { columns, rows };
+}
+
+export interface AzureBudget {
+  name: string;
+  amount: number;
+  timeGrain: string;
+  currency: string;
+  /** Spend reported by the budget itself, over the budget's own filter */
+  currentSpend: number | null;
+  hasFilter: boolean;
+}
+
+/** List Cost Management budgets defined at a scope (Microsoft.Consumption) */
+export async function listBudgets(credential: MsalCredential, scope: string): Promise<AzureBudget[]> {
+  const token = await credential.getToken('https://management.azure.com/.default');
+  if (!token) throw new Error('Failed to acquire token');
+  const url = `https://management.azure.com${scope}/providers/Microsoft.Consumption/budgets?api-version=2023-05-01`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token.token}`, Accept: 'application/json' } });
+  if (!res.ok) throw new Error(`List budgets failed: ${res.status.toString()} ${res.statusText}`);
+  const body = await res.json() as {
+    value?: {
+      name?: string;
+      properties?: {
+        amount?: number; timeGrain?: string; filter?: unknown;
+        currentSpend?: { amount?: number; unit?: string };
+      };
+    }[];
+  };
+  return (body.value ?? []).map((b) => ({
+    name: b.name ?? '',
+    amount: b.properties?.amount ?? 0,
+    timeGrain: b.properties?.timeGrain ?? 'Monthly',
+    currency: b.properties?.currentSpend?.unit ?? '',
+    currentSpend: b.properties?.currentSpend?.amount ?? null,
+    hasFilter: !!b.properties?.filter,
+  }));
 }

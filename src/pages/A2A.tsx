@@ -3,13 +3,11 @@ import { Bot, Search, Copy, Check, X, Play } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAzure } from '../context/AzureContext';
 import {
-  createMsalCredential,
   getApimApiDetail,
   listApimApiRevisions,
   listApimApiReleases,
   listApiProducts,
 } from '../services/azure';
-import { useMsal } from '@azure/msal-react';
 import type { A2aServer, ApimApiDetail, ApimApiRevision, ApimApiRelease, ApimProduct } from '../types';
 
 function CopyValue({ value }: { value: string }) {
@@ -37,8 +35,7 @@ interface DetailData {
 }
 
 export default function A2A() {
-  const { config, workspaceData, workspaceLoading } = useAzure();
-  const { instance } = useMsal();
+  const { config, workspaceData, workspaceLoading, getCredential } = useAzure();
 
   const [search, setSearch] = useState('');
   const [tagFilter, setTagFilter] = useState<string>('all');
@@ -49,7 +46,6 @@ export default function A2A() {
   const [activeTab, setActiveTab] = useState<'overview' | 'subscription' | 'revisions' | 'releases' | 'products'>('overview');
 
   const service = config.apimService;
-  const getCredential = useCallback(() => createMsalCredential(instance), [instance]);
 
   const a2aServers = workspaceData.a2aServers;
   const allTags = [...new Set(a2aServers.flatMap((a) => a.tags.map((t) => t.displayName)))].sort();

@@ -69,6 +69,12 @@ src/
 - `ConfirmModal` — generic yes/no confirmation dialog.
 - `LoadingModal` — loading spinner overlay.
 
+## Pricing & cost engine
+
+- `src/pricing/` — pure cost engine (`engine.ts`, `decimal.ts`), KQL builder, report roll-up and the `/api/pricing` client. Keep `engine.ts` and `report.ts` free of `azure.ts`/`msal.ts` imports so Vitest can run them in Node.
+- `server/pricing-api.mjs` — `/api/pricing` handler shared by the Vite dev plugin and `server/server.mjs` (Container Apps). Local JSON file by default; `PRICING_BLOB_URL` switches to blob storage with the managed identity. The browser never holds storage credentials.
+- `npm test` runs Vitest.
+
 ## Lint & type-check
 
 ```bash

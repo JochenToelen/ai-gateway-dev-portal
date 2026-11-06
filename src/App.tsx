@@ -11,12 +11,15 @@ import { useTokenAuth } from './context/TokenAuthContext';
 import Layout from './components/Layout';
 import LoginPage from './components/LoginPage';
 import Dashboard from './pages/Dashboard';
+import ExecutiveDashboard from './pages/ExecutiveDashboard';
+import ModelPricing from './pages/ModelPricing';
 import ModelProviders from './pages/ModelProviders';
 import InferenceApis from './pages/InferenceApis';
 import McpServers from './pages/McpServers';
 import A2A from './pages/A2A';
 import Products from './pages/Products';
 import Subscriptions from './pages/Subscriptions';
+import Registry from './pages/Registry';
 import Playground from './pages/Playground';
 import McpPlayground from './pages/McpPlayground';
 import A2APlayground from './pages/A2APlayground';
@@ -50,12 +53,15 @@ function AuthenticatedRoutes() {
           <Route element={<Layout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="executive" element={<ExecutiveDashboard />} />
+            <Route path="model-pricing" element={<ModelPricing />} />
             <Route path="model-providers" element={<ModelProviders />} />
             <Route path="inference-apis" element={<InferenceApis />} />
             <Route path="mcp-servers" element={<McpServers />} />
             <Route path="a2a" element={<A2A />} />
             <Route path="products" element={<Products />} />
             <Route path="subscriptions" element={<Subscriptions />} />
+            <Route path="registry" element={<Registry />} />
             <Route path="playground" element={<Playground />} />
             <Route path="mcp-playground" element={<McpPlayground />} />
             <Route path="a2a-playground" element={<A2APlayground />} />

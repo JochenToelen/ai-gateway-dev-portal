@@ -12,6 +12,7 @@ import AnalyticsToolbar, {
   type TimeRange,
 } from '../components/AnalyticsToolbar';
 import useLegendHighlight from '../hooks/useLegendHighlight';
+import ModelCostSection from '../components/ModelCostSection';
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -307,6 +308,12 @@ export default function Tokens() {
     );
   }
 
+  const { start: costStart, end: costEnd } = timeExprs(timeRange, customStart, customEnd);
+  const costFilters = { start: costStart, end: costEnd || undefined, models: modelFilter, subscriptions: subFilter };
+  const spanDays = timeRange === 'custom' && customStart && customEnd
+    ? Math.max((new Date(customEnd).getTime() - new Date(customStart).getTime()) / 86_400_000, 1)
+    : ({ '30d': 30, '7d': 7, '3d': 3 } as Record<string, number>)[timeRange] ?? 1;
+
   const hasData = tokBySub.data.length > 0 || tokByModel.data.length > 0;
 
   return (
@@ -322,6 +329,9 @@ export default function Tokens() {
       </div>
 
       <AnalyticsToolbar state={tb} onRefresh={handleRefresh} />
+
+      <ModelCostSection apimResourceId={service.id} filters={costFilters} spanDays={spanDays}
+        refreshKey={tb.lastRefresh?.getTime() ?? 0} />
 
       {tb.loading && !hasData ? (
         <div className="page-empty"><span className="spinner" /></div>

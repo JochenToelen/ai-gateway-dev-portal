@@ -3,13 +3,11 @@ import { BrainCog, Search, Copy, Check, X, Play } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAzure } from '../context/AzureContext';
 import {
-  createMsalCredential,
   getApimApiDetail,
   listApimApiRevisions,
   listApimApiReleases,
   listApiProducts,
 } from '../services/azure';
-import { useMsal } from '@azure/msal-react';
 import type { InferenceApi, ApimApiDetail, ApimApiRevision, ApimApiRelease, ApimProduct, ProviderType } from '../types';
 
 const PROVIDER_LABELS: Record<ProviderType, string> = {
@@ -68,8 +66,7 @@ interface ApiDetailData {
 }
 
 export default function InferenceApis() {
-  const { config, workspaceData, workspaceLoading } = useAzure();
-  const { instance } = useMsal();
+  const { config, workspaceData, workspaceLoading, getCredential } = useAzure();
 
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<ProviderType | 'all'>('all');
@@ -82,7 +79,6 @@ export default function InferenceApis() {
   const [activeTab, setActiveTab] = useState<'overview' | 'subscription' | 'revisions' | 'releases' | 'products'>('overview');
 
   const service = config.apimService;
-  const getCredential = useCallback(() => createMsalCredential(instance), [instance]);
 
   const inferenceApis = workspaceData.inferenceApis;
 

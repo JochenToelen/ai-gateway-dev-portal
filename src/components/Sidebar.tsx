@@ -7,12 +7,15 @@ import {
   Bot,
   Package,
   KeyRound,
+  Library,
   Play,
   Coins,
   Gauge,
   ShieldCheck,
   Activity,
   ScrollText,
+  TrendingUp,
+  CircleDollarSign,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -24,6 +27,8 @@ type NavEntry =
 
 const navItems: NavEntry[] = [
   { type: 'link', to: '/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
+  { type: 'link', to: '/executive', label: 'AI Gateway consumption', Icon: TrendingUp },
+  { type: 'link', to: '/model-pricing', label: 'AI Model Pricing', Icon: CircleDollarSign },
   { type: 'divider' },
   { type: 'link', to: '/model-providers', label: 'Model providers', Icon: CloudCog },
   { type: 'link', to: '/inference-apis', label: 'Inference APIs', Icon: BrainCog },
@@ -31,6 +36,7 @@ const navItems: NavEntry[] = [
   { type: 'link', to: '/a2a', label: 'A2A integrations', Icon: Bot },
   { type: 'link', to: '/products', label: 'Products', Icon: Package },
   { type: 'link', to: '/subscriptions', label: 'Subscriptions', Icon: KeyRound },
+  { type: 'link', to: '/registry', label: 'Registry', Icon: Library },
   { type: 'divider' },
   { type: 'link', to: '/playground', label: 'Playground', Icon: Play },
   { type: 'divider' },

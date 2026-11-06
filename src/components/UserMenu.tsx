@@ -178,7 +178,7 @@ export default function UserMenu() {
               </div>
               <div className="user-menu-field">
                 <span className="user-menu-field-label">API Center</span>
-                <CopyValue value={config.apiCenterName ?? undefined} fallback="Not linked" />
+                <CopyValue value={config.apiCenter?.name} fallback="Not linked" />
               </div>
               <div className="user-menu-field">
                 <span className="user-menu-field-label">Monitor</span>

@@ -3,7 +3,6 @@ import { Package, Plus, Search, X, ChevronDown, Globe, GlobeLock, Trash2 } from 
 import { useLocation } from 'react-router-dom';
 import { useAzure } from '../context/AzureContext';
 import {
-  createMsalCredential,
   listApimProducts,
   createApimProduct,
   deleteApimProduct,
@@ -12,7 +11,6 @@ import {
   addApiToProduct,
   removeApiFromProduct,
 } from '../services/azure';
-import { useMsal } from '@azure/msal-react';
 import type { ApimProduct, ApimApi } from '../types';
 import ConfirmModal from '../components/ConfirmModal';
 
@@ -48,8 +46,7 @@ const ACTION_CONFIRMS: Record<string, (p: ApimProduct) => Omit<ConfirmState, 'ac
 };
 
 export default function Products() {
-  const { config, workspaceData, workspaceLoading, setWorkspaceData } = useAzure();
-  const { instance } = useMsal();
+  const { config, workspaceData, workspaceLoading, setWorkspaceData, getCredential } = useAzure();
 
   const [search, setSearch] = useState('');
   const [stateFilter, setStateFilter] = useState<'all' | 'published' | 'notPublished'>('all');
@@ -74,8 +71,6 @@ export default function Products() {
 
   const panelRef = useRef<HTMLDivElement>(null);
   const service = config.apimService;
-
-  const getCredential = useCallback(() => createMsalCredential(instance), [instance]);
 
   /** Re-fetch products after a mutation and update shared context */
   const refresh = useCallback(async () => {

@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { KeyRound, Plus, Search, Copy, Check, X, Play, Pencil, ChevronDown, RefreshCw, Pause, CirclePlay, Ban, Trash2 } from 'lucide-react';
 import { useAzure } from '../context/AzureContext';
-import { createMsalCredential, listApimSubscriptions, createApimSubscription, deleteApimSubscription, regeneratePrimaryKey, regenerateSecondaryKey, updateApimSubscriptionState } from '../services/azure';
-import { useMsal } from '@azure/msal-react';
+import { listApimSubscriptions, createApimSubscription, deleteApimSubscription, regeneratePrimaryKey, regenerateSecondaryKey, updateApimSubscriptionState } from '../services/azure';
 import type { ApimSubscription } from '../types';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ConfirmModal from '../components/ConfirmModal';
@@ -159,8 +158,7 @@ function ActionsDropdown({ sub, onAction }: { sub: ApimSubscription; onAction: (
 }
 
 export default function Subscriptions() {
-  const { config, workspaceData, workspaceLoading, setWorkspaceData } = useAzure();
-  const { instance } = useMsal();
+  const { config, workspaceData, workspaceLoading, setWorkspaceData, getCredential } = useAzure();
   const navigate = useNavigate();
 
   const [search, setSearch] = useState('');
@@ -185,8 +183,6 @@ export default function Subscriptions() {
   const panelRef = useRef<HTMLDivElement>(null);
 
   const service = config.apimService;
-
-  const getCredential = useCallback(() => createMsalCredential(instance), [instance]);
 
   /** Re-fetch subscriptions after a mutation and update shared context */
   const refresh = useCallback(async () => {

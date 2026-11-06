@@ -3,13 +3,11 @@ import { Plug, Search, Copy, Check, X, Play } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAzure } from '../context/AzureContext';
 import {
-  createMsalCredential,
   getApimApiDetail,
   listApimApiRevisions,
   listApimApiReleases,
   listApiProducts,
 } from '../services/azure';
-import { useMsal } from '@azure/msal-react';
 import type { McpServer, McpSource, ApimApiDetail, ApimApiRevision, ApimApiRelease, ApimProduct } from '../types';
 
 const SOURCE_LABELS: Record<McpSource, string> = {
@@ -50,8 +48,7 @@ interface DetailData {
 }
 
 export default function McpServers() {
-  const { config, workspaceData, workspaceLoading } = useAzure();
-  const { instance } = useMsal();
+  const { config, workspaceData, workspaceLoading, getCredential } = useAzure();
 
   const [search, setSearch] = useState('');
   const [sourceFilter, setSourceFilter] = useState<McpSource | 'all'>('all');
@@ -63,7 +60,6 @@ export default function McpServers() {
   const [activeTab, setActiveTab] = useState<'overview' | 'subscription' | 'revisions' | 'releases' | 'products'>('overview');
 
   const service = config.apimService;
-  const getCredential = useCallback(() => createMsalCredential(instance), [instance]);
 
   const mcpServers = workspaceData.mcpServers;
   const allTags = [...new Set(mcpServers.flatMap((a) => a.tags.map((t) => t.displayName)))].sort();
