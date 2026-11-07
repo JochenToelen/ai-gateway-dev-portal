@@ -35,7 +35,7 @@ function LoadingScreen() {
     <div className="login-page">
       <div className="login-bg" />
       <div className="login-card" style={{ gap: 20, padding: '40px 48px' }}>
-        <img src="/ai-gateway.svg" alt="" className="login-logo-icon" />
+        <img src="/HikoniQ_RGB_icoon_schild_lagoon.svg" alt="" className="login-logo-icon" />
         <span className="spinner" />
         <p style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
           Signing in…

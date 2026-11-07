@@ -27,7 +27,7 @@ export default function TrendChart({ data, series, formatValue, height = 220 }: 
         <XAxis dataKey="label" tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} axisLine={false} tickLine={false} minTickGap={16} />
         <YAxis tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} axisLine={false} tickLine={false} width={52} tickFormatter={(v: number) => formatValue(v)} />
         <Tooltip
-          contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: 8, fontSize: 12 }}
+          contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: 0, fontSize: 12 }}
           formatter={(v) => formatValue(Number(v))}
         />
         <Legend wrapperStyle={{ fontSize: 11 }} />

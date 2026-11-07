@@ -101,7 +101,7 @@ export default function ExecutiveDashboard() {
       <ExecFilters filters={filters} model={model} onChange={setFilters} />
 
       <SectionTitle index="1" title="Overview" question="How much AI traffic does the gateway observe?" />
-      <div className="exec-kpis">{kpis.map((k) => <KpiCard key={k.key} kpi={k} />)}</div>
+      <div className="exec-kpis exec-kpis-4">{kpis.map((k) => <KpiCard key={k.key} kpi={k} />)}</div>
       <Card title="Alerts" subtitle="Exceptions against configurable thresholds">
         <AlertPanel alerts={model.alerts} />
       </Card>
@@ -114,13 +114,13 @@ export default function ExecutiveDashboard() {
       <div className="exec-grid-2">
         <Card title="Tokens over time" subtitle="Observed in APIM LLM logs">
           <TrendChart data={model.tokenSeries} formatValue={compact} series={[
-            { key: 'prompt', name: 'Prompt tokens', color: '#50e6ff', type: 'area', stackId: 't' },
-            { key: 'completion', name: 'Completion tokens', color: '#8661c5', type: 'area', stackId: 't' },
+            { key: 'prompt', name: 'Prompt tokens', color: 'var(--chart-1)', type: 'area', stackId: 't' },
+            { key: 'completion', name: 'Completion tokens', color: 'var(--chart-2)', type: 'area', stackId: 't' },
           ]} />
         </Card>
         <Card title="Requests over time" subtitle="Observed in APIM gateway logs">
           <TrendChart data={model.tokenSeries} formatValue={compact} series={[
-            { key: 'requests', name: 'Requests', color: '#0078d4', type: 'bar' },
+            { key: 'requests', name: 'Requests', color: 'var(--chart-3)', type: 'bar' },
           ]} />
         </Card>
       </div>

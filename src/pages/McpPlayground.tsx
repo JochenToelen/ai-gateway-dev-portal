@@ -789,7 +789,7 @@ export default function McpPlayground() {
                       title="Custom scope or audience for the bearer token. Leave empty to use the default ARM scope."
                     />
                     {bearerScope.trim() && !bearerScope.trim().endsWith('/.default') && !bearerScope.trim().endsWith('/user_impersonation') && (
-                      <span className="pg-toggle-hint" style={{ color: 'var(--warning, #ffc107)' }}>
+                      <span className="pg-toggle-hint" style={{ color: 'var(--warning-text)' }}>
                         Scope should typically end with /.default or /user_impersonation
                       </span>
                     )}

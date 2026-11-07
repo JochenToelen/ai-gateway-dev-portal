@@ -35,10 +35,15 @@ const PROVIDER_ICONS: Partial<Record<ProviderType, string>> = {
 type Baseline = '1d' | '7d' | '30d' | '365d';
 
 const CHART_COLORS = [
-  '#89b4fa', '#f9e2af', '#cba6f7', '#a6e3a1', '#f38ba8',
-  '#fab387', '#74c7ec', '#94e2d5', '#f5c2e7', '#eba0ac',
-  '#b4befe', '#f2cdcd',
+  'var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)',
+  'var(--chart-5)', 'var(--chart-6)', 'var(--chart-7)', 'var(--chart-8)',
+  'var(--chart-9)', 'var(--chart-10)', 'var(--chart-11)', 'var(--chart-12)',
 ];
+// Chart chrome resolves through HikoniQ theme tokens (see index.css)
+const GRID = 'var(--chart-grid)';
+const TICK = { fill: 'var(--chart-axis)', fontSize: 11 };
+const TOOLTIP_STYLE = { background: 'var(--bg-surface)', border: '1px solid var(--border-strong)', borderRadius: 0, fontSize: 12 };
+const TOOLTIP_LABEL_STYLE = { color: 'var(--text-secondary)', marginBottom: 4 };
 
 interface BaselineOption { value: Baseline; label: string }
 const BASELINES: BaselineOption[] = [
@@ -516,28 +521,23 @@ export default function Dashboard() {
           ) : (
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={chartData} margin={{ top: 8, right: 24, bottom: 0, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                <CartesianGrid strokeDasharray="3 3" stroke={GRID} />
                 <XAxis
                   dataKey="time"
-                  tick={{ fill: '#8b8ba0', fontSize: 11 }}
+                  tick={TICK}
                   tickFormatter={fmtChartTime}
-                  stroke="rgba(255,255,255,0.08)"
+                  stroke={GRID}
                   minTickGap={40}
                 />
                 <YAxis
-                  tick={{ fill: '#8b8ba0', fontSize: 11 }}
+                  tick={TICK}
                   tickFormatter={fmtNum}
-                  stroke="rgba(255,255,255,0.08)"
+                  stroke={GRID}
                   width={52}
                 />
                 <RTooltip
-                  contentStyle={{
-                    background: 'var(--bg-surface, #111118)',
-                    border: '1px solid var(--border, rgba(255,255,255,0.08))',
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                  labelStyle={{ color: 'var(--text-secondary, #8b8ba0)', marginBottom: 4 }}
+                  contentStyle={TOOLTIP_STYLE}
+                  labelStyle={TOOLTIP_LABEL_STYLE}
                   itemStyle={{ padding: '1px 0' }}
                   labelFormatter={fmtTooltipTime}
                   formatter={(value: unknown) => Number(value).toLocaleString()}

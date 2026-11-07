@@ -138,7 +138,7 @@ const NOT_MEASURED = [
   'Active users and adoption trends (no reliable user identity in gateway logs)',
   'Provider availability (needs Azure Monitor / Foundry telemetry)',
   'Traffic bypassing the gateway (APIM only sees traffic routed through it)',
-  'Content Safety interventions, business unit, application and agent attribution (need policy logging or a mapping)',
+  'Content Safety interventions and agent attribution (need policy logging or a mapping)',
 ];
 
 export function CoveragePanel({ items }: { items: CoverageItem[] }) {

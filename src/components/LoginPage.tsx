@@ -97,7 +97,7 @@ export default function LoginPage() {
       <div className="login-bg" />
       <div className="login-card">
         <div className="login-logo">
-          <img src="/ai-gateway.svg" alt="" className="login-logo-icon" />
+          <img src="/HikoniQ_RGB_icoon_schild_lagoon.svg" alt="" className="login-logo-icon" />
           <h1 className="login-title">AI Gateway Dev Portal</h1>
         </div>
         <p className="login-subtitle">

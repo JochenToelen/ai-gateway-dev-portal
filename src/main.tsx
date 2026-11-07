@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 import { PublicClientApplication, EventType } from '@azure/msal-browser';
 import { MsalProvider } from '@azure/msal-react';
 import { msalConfig } from './config/msal';
-import { ThemeProvider } from './context/ThemeContext';
 import { TokenAuthProvider } from './context/TokenAuthContext';
 import App from './App';
 import './index.css';
@@ -45,9 +44,7 @@ async function startApp() {
     <StrictMode>
       <MsalProvider instance={msalInstance}>
         <TokenAuthProvider>
-          <ThemeProvider>
-            <App />
-          </ThemeProvider>
+          <App />
         </TokenAuthProvider>
       </MsalProvider>
     </StrictMode>,

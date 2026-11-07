@@ -1,7 +1,6 @@
 import SearchBar from './SearchBar';
 import WorkspaceSelector from './WorkspaceSelector';
 import UserMenu from './UserMenu';
-import Github from './GithubIcon';
 
 export default function Header() {
 
@@ -11,11 +10,10 @@ export default function Header() {
       <div className="header-left">
         <a href="/" className="header-logo-link">
           <img
-            src="/ai-gateway.svg"
-            alt="AI Gateway"
+            src="/HikoniQ_RGB_logo_monotoon_lagoon.svg"
+            alt="HikoniQ"
             className="header-logo-icon"
           />
-          <span className="header-logo-text">AI Gateway</span>
         </a>
         <div className="header-separator" />
         <WorkspaceSelector />
@@ -28,9 +26,6 @@ export default function Header() {
 
       {/* Right: Actions + User */}
       <div className="header-right">
-        <a href="https://aka.ms/ai-gateway/dev-portal" target="_blank" rel="noopener noreferrer" className="icon-btn" aria-label="GitHub" title="Fork the project on GitHub">
-          <Github size={16} />
-        </a>
         <UserMenu />
       </div>
     </header>

@@ -39,8 +39,8 @@ const kpi = (key: string, label: string, value: string, sub: string, status: Kpi
 
 /**
  * Estimated AI model cost for the host page's filters. Pricing is resolved inside Log Analytics
- * (see pricing/kql.ts); the browser only receives daily aggregates. Business-unit and application
- * dimensions do not exist in this app, so cost is broken down by the dimensions APIM provides.
+ * (see pricing/kql.ts); the browser only receives daily aggregates.  Cost is broken down by
+ * the dimensions APIM provides.
  */
 export default function ModelCostSection({ apimResourceId, filters, spanDays, refreshKey, subscriptionNames = {}, apiNames = {}, onData }: Props) {
   const { getCredential } = useAzure();
@@ -132,19 +132,12 @@ export default function ModelCostSection({ apimResourceId, filters, spanDays, re
       <div className="exec-kpis pricing-kpis">{consumption.map((k) => <KpiCard key={k.key} kpi={k} />)}</div>
       <div className="exec-kpis pricing-kpis">{cost.map((k) => <KpiCard key={k.key} kpi={k} />)}</div>
 
-      <div className="exec-grid-2">
+      <div className="exec-grid-cost">
         <Card title="Cost over time" subtitle={`Estimated cost per ${pickBin(spanDays)}`}>
           <TrendChart data={report.series} formatValue={(n) => (currency ? formatMoney(n, currency, n < 10 ? 2 : 0) : compact(n))} series={[
-            { key: 'cost', name: 'Estimated cost', color: '#0078d4', type: 'bar' },
+            { key: 'cost', name: 'Estimated cost', color: 'var(--chart-1)', type: 'bar' },
           ]} />
         </Card>
-        <Card title="Business unit & application" subtitle="Attribution dimensions">
-          <div className="exec-alerts-ok">
-            No business-unit or application mapping exists in this portal, so none is invented. Break cost down by API and
-            subscription/consumer below; map subscriptions to owners in APIM to attribute further.
-          </div>
-        </Card>
-      </div>
 
       <Card title="Cost breakdown" action={
         <div className="pricing-tabs" role="tablist">
@@ -172,6 +165,7 @@ export default function ModelCostSection({ apimResourceId, filters, spanDays, re
           </table>
         </div>
       </Card>
+      </div>
 
       {report.missing.length > 0 && (
         <Card title="Requests missing pricing" subtitle="Models/deployments with no pricing rule valid at request time" action={<Pill tone="info">{num(missing)} requests</Pill>}>

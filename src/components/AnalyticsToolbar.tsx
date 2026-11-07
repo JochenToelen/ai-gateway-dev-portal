@@ -239,15 +239,6 @@ export function useToolbarState(): ToolbarState {
     const handler = () => {
       const fs = !!document.fullscreenElement;
       setIsFullscreen(fs);
-      // Sync theme onto the container so CSS variables resolve inside :fullscreen
-      if (containerRef.current) {
-        if (fs) {
-          const theme = document.documentElement.getAttribute('data-theme');
-          if (theme) containerRef.current.setAttribute('data-theme', theme);
-        } else {
-          containerRef.current.removeAttribute('data-theme');
-        }
-      }
     };
     document.addEventListener('fullscreenchange', handler);
     return () => document.removeEventListener('fullscreenchange', handler);

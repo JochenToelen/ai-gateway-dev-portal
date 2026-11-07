@@ -27,7 +27,7 @@ export default function LoadingModal() {
     <div className="wl-overlay">
       <div className="wl-dialog">
         <div className="wl-logo-wrap">
-          <img src="/ai-gateway.svg" alt="" className="wl-logo" />
+          <img src="/HikoniQ_RGB_icoon_schild_lagoon.svg" alt="" className="wl-logo" />
           <div className="wl-logo-color" />
         </div>
         <div className="wl-title">Loading workspace data</div>

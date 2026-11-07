@@ -1,19 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { LogOut, Sun, Moon, Monitor, Copy, Check, ChevronDown, Building2, ShieldCheck, KeyRound } from 'lucide-react';
+import { LogOut, Copy, Check, ChevronDown, Building2, ShieldCheck, KeyRound } from 'lucide-react';
 import { useMsal } from '@azure/msal-react';
-import { useTheme } from '../context/ThemeContext';
 import { useAzure } from '../context/AzureContext';
 import { useTokenAuth } from '../context/TokenAuthContext';
-import type { ThemeMode } from '../types';
 import packageJson from '../../package.json';
 
 const APP_VERSION = packageJson.version;
-
-const themeOptions: { value: ThemeMode; label: string; Icon: typeof Sun }[] = [
-  { value: 'light', label: 'Light', Icon: Sun },
-  { value: 'dark', label: 'Dark', Icon: Moon },
-  { value: 'system', label: 'System', Icon: Monitor },
-];
 
 function CopyValue({ value, fallback }: { value: string | undefined; fallback?: string }) {
   const [copied, setCopied] = useState(false);
@@ -38,7 +30,6 @@ function CopyValue({ value, fallback }: { value: string | undefined; fallback?: 
 
 export default function UserMenu() {
   const { instance } = useMsal();
-  const { theme, setTheme } = useTheme();
   const { userProfile, config, tenants, switchDirectory } = useAzure();
   const { isAuthenticated: isTokenAuth, signOut: tokenSignOut } = useTokenAuth();
   const [open, setOpen] = useState(false);
@@ -191,23 +182,6 @@ export default function UserMenu() {
               <div className="user-menu-field">
                 <span className="user-menu-field-label">Foundry</span>
                 <CopyValue value={config.foundryProject?.name} fallback="Not linked" />
-              </div>
-            </div>
-
-            {/* Theme */}
-            <div className="theme-selector">
-              <div className="theme-selector-label">Theme</div>
-              <div className="theme-selector-options">
-                {themeOptions.map(({ value, label, Icon }) => (
-                  <button
-                    key={value}
-                    className={`theme-option${theme === value ? ' active' : ''}`}
-                    onClick={() => setTheme(value)}
-                  >
-                    <Icon className="theme-option-icon" />
-                    {label}
-                  </button>
-                ))}
               </div>
             </div>
 

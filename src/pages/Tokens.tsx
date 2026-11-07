@@ -19,10 +19,15 @@ import ModelCostSection from '../components/ModelCostSection';
 /* ------------------------------------------------------------------ */
 
 const CHART_COLORS = [
-  '#89b4fa', '#f9e2af', '#cba6f7', '#a6e3a1', '#f38ba8',
-  '#fab387', '#74c7ec', '#94e2d5', '#f5c2e7', '#eba0ac',
-  '#b4befe', '#f2cdcd',
+  'var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)',
+  'var(--chart-5)', 'var(--chart-6)', 'var(--chart-7)', 'var(--chart-8)',
+  'var(--chart-9)', 'var(--chart-10)', 'var(--chart-11)', 'var(--chart-12)',
 ];
+// Chart chrome resolves through HikoniQ theme tokens (see index.css)
+const GRID = 'var(--chart-grid)';
+const TICK = { fill: 'var(--chart-axis)', fontSize: 11 };
+const TOOLTIP_STYLE = { background: 'var(--bg-surface)', border: '1px solid var(--border-strong)', borderRadius: 0, fontSize: 12 };
+const TOOLTIP_LABEL_STYLE = { color: 'var(--text-secondary)', marginBottom: 4 };
 
 /* ------------------------------------------------------------------ */
 /*  KQL helpers                                                        */
@@ -409,12 +414,12 @@ function TimeLineChart({ data, series, valueFormatter }: {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <LineChart data={data} margin={{ top: 8, right: 24, bottom: 0, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-        <XAxis dataKey="time" tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtChartTime} stroke="rgba(255,255,255,0.08)" minTickGap={40} />
-        <YAxis tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtNum} stroke="rgba(255,255,255,0.08)" width={48} />
+        <CartesianGrid strokeDasharray="3 3" stroke={GRID} />
+        <XAxis dataKey="time" tick={TICK} tickFormatter={fmtChartTime} stroke={GRID} minTickGap={40} />
+        <YAxis tick={TICK} tickFormatter={fmtNum} stroke={GRID} width={48} />
         <RTooltip
-          contentStyle={{ background: 'var(--bg-surface, #111118)', border: '1px solid var(--border, rgba(255,255,255,0.08))', borderRadius: 8, fontSize: 12 }}
-          labelStyle={{ color: 'var(--text-secondary, #8b8ba0)', marginBottom: 4 }}
+          contentStyle={TOOLTIP_STYLE}
+          labelStyle={TOOLTIP_LABEL_STYLE}
           itemStyle={{ padding: '1px 0' }}
           labelFormatter={fmtTooltipTime}
           formatter={(value: unknown) => fmt(Number(value))}
@@ -440,20 +445,20 @@ function InputOutputChart({ data }: { data: Record<string, string | number>[] })
   return (
     <ResponsiveContainer width="100%" height={220}>
       <AreaChart data={data} margin={{ top: 8, right: 24, bottom: 0, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-        <XAxis dataKey="time" tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtChartTime} stroke="rgba(255,255,255,0.08)" minTickGap={40} />
-        <YAxis tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtNum} stroke="rgba(255,255,255,0.08)" width={48} />
+        <CartesianGrid strokeDasharray="3 3" stroke={GRID} />
+        <XAxis dataKey="time" tick={TICK} tickFormatter={fmtChartTime} stroke={GRID} minTickGap={40} />
+        <YAxis tick={TICK} tickFormatter={fmtNum} stroke={GRID} width={48} />
         <RTooltip
-          contentStyle={{ background: 'var(--bg-surface, #111118)', border: '1px solid var(--border, rgba(255,255,255,0.08))', borderRadius: 8, fontSize: 12 }}
-          labelStyle={{ color: 'var(--text-secondary, #8b8ba0)', marginBottom: 4 }}
+          contentStyle={TOOLTIP_STYLE}
+          labelStyle={TOOLTIP_LABEL_STYLE}
           labelFormatter={fmtTooltipTime}
           formatter={(value: unknown) => Number(value).toLocaleString()}
         />
         <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8, cursor: 'pointer' }}
           onMouseEnter={legend.handleMouseEnter} onMouseLeave={legend.handleMouseLeave} onClick={legend.handleClick} />
-        <Area type="linear" dataKey="Input" name="Input (Prompt)" stroke="#89b4fa" fill="#89b4fa" fillOpacity={0.15} strokeWidth={2}
+        <Area type="linear" dataKey="Input" name="Input (Prompt)" stroke="var(--chart-1)" fill="var(--chart-1)" fillOpacity={0.15} strokeWidth={2}
           opacity={legend.opacity('Input')} />
-        <Area type="linear" dataKey="Output" name="Output (Completion)" stroke="#a6e3a1" fill="#a6e3a1" fillOpacity={0.15} strokeWidth={2}
+        <Area type="linear" dataKey="Output" name="Output (Completion)" stroke="var(--chart-4)" fill="var(--chart-4)" fillOpacity={0.15} strokeWidth={2}
           opacity={legend.opacity('Output')} />
       </AreaChart>
     </ResponsiveContainer>
@@ -466,22 +471,22 @@ function ThroughputChart({ data }: { data: Record<string, string | number>[] }) 
   return (
     <ResponsiveContainer width="100%" height={220}>
       <AreaChart data={data} margin={{ top: 8, right: 24, bottom: 0, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-        <XAxis dataKey="time" tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtChartTime} stroke="rgba(255,255,255,0.08)" minTickGap={40} />
-        <YAxis tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtNum} stroke="rgba(255,255,255,0.08)" width={48} />
+        <CartesianGrid strokeDasharray="3 3" stroke={GRID} />
+        <XAxis dataKey="time" tick={TICK} tickFormatter={fmtChartTime} stroke={GRID} minTickGap={40} />
+        <YAxis tick={TICK} tickFormatter={fmtNum} stroke={GRID} width={48} />
         <RTooltip
-          contentStyle={{ background: 'var(--bg-surface, #111118)', border: '1px solid var(--border, rgba(255,255,255,0.08))', borderRadius: 8, fontSize: 12 }}
-          labelStyle={{ color: 'var(--text-secondary, #8b8ba0)', marginBottom: 4 }}
+          contentStyle={TOOLTIP_STYLE}
+          labelStyle={TOOLTIP_LABEL_STYLE}
           labelFormatter={fmtTooltipTime}
           formatter={(value: unknown) => Number(value).toLocaleString()}
         />
         <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8, cursor: 'pointer' }}
           onMouseEnter={legend.handleMouseEnter} onMouseLeave={legend.handleMouseLeave} onClick={legend.handleClick} />
-        <Area type="linear" dataKey="Total" name="Total" stroke="#cba6f7" fill="#cba6f7" fillOpacity={0.10} strokeWidth={2}
+        <Area type="linear" dataKey="Total" name="Total" stroke="var(--chart-3)" fill="var(--chart-3)" fillOpacity={0.10} strokeWidth={2}
           opacity={legend.opacity('Total')} />
-        <Area type="linear" dataKey="Input" name="Input" stroke="#89b4fa" fill="#89b4fa" fillOpacity={0.10} strokeWidth={2}
+        <Area type="linear" dataKey="Input" name="Input" stroke="var(--chart-1)" fill="var(--chart-1)" fillOpacity={0.10} strokeWidth={2}
           opacity={legend.opacity('Input')} />
-        <Area type="linear" dataKey="Output" name="Output" stroke="#a6e3a1" fill="#a6e3a1" fillOpacity={0.10} strokeWidth={2}
+        <Area type="linear" dataKey="Output" name="Output" stroke="var(--chart-4)" fill="var(--chart-4)" fillOpacity={0.10} strokeWidth={2}
           opacity={legend.opacity('Output')} />
       </AreaChart>
     </ResponsiveContainer>

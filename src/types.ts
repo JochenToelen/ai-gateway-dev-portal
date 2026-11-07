@@ -77,7 +77,6 @@ export interface UserProfile {
   objectId: string;
 }
 
-export type ThemeMode = 'light' | 'dark' | 'system';
 
 export interface ApimSubscription {
   id: string;

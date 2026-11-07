@@ -18,10 +18,15 @@ import useLegendHighlight from '../hooks/useLegendHighlight';
 /* ------------------------------------------------------------------ */
 
 const CHART_COLORS = [
-  '#89b4fa', '#f9e2af', '#cba6f7', '#a6e3a1', '#f38ba8',
-  '#fab387', '#74c7ec', '#94e2d5', '#f5c2e7', '#eba0ac',
-  '#b4befe', '#f2cdcd',
+  'var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)',
+  'var(--chart-5)', 'var(--chart-6)', 'var(--chart-7)', 'var(--chart-8)',
+  'var(--chart-9)', 'var(--chart-10)', 'var(--chart-11)', 'var(--chart-12)',
 ];
+// Chart chrome resolves through HikoniQ theme tokens (see index.css)
+const GRID = 'var(--chart-grid)';
+const TICK = { fill: 'var(--chart-axis)', fontSize: 11 };
+const TOOLTIP_STYLE = { background: 'var(--bg-surface)', border: '1px solid var(--border-strong)', borderRadius: 0, fontSize: 12 };
+const TOOLTIP_LABEL_STYLE = { color: 'var(--text-secondary)', marginBottom: 4 };
 
 /* ------------------------------------------------------------------ */
 /*  KQL helpers                                                        */
@@ -392,16 +397,16 @@ function ChartCard({ title, loading, children }: { title: string; loading: boole
 function SuccessErrorChart({ data, series }: { data: Record<string, string | number>[]; series: string[] }) {
   const legend = useLegendHighlight();
   if (data.length === 0) return <div className="db-chart-empty">No data</div>;
-  const colorMap: Record<string, string> = { Success: '#a6e3a1', Error: '#f38ba8' };
+  const colorMap: Record<string, string> = { Success: 'var(--success)', Error: 'var(--danger)' };
   return (
     <ResponsiveContainer width="100%" height={220}>
       <AreaChart data={data} margin={{ top: 8, right: 24, bottom: 0, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-        <XAxis dataKey="time" tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtChartTime} stroke="rgba(255,255,255,0.08)" minTickGap={40} />
-        <YAxis tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtNum} stroke="rgba(255,255,255,0.08)" width={48} />
+        <CartesianGrid strokeDasharray="3 3" stroke={GRID} />
+        <XAxis dataKey="time" tick={TICK} tickFormatter={fmtChartTime} stroke={GRID} minTickGap={40} />
+        <YAxis tick={TICK} tickFormatter={fmtNum} stroke={GRID} width={48} />
         <RTooltip
-          contentStyle={{ background: 'var(--bg-surface, #111118)', border: '1px solid var(--border, rgba(255,255,255,0.08))', borderRadius: 8, fontSize: 12 }}
-          labelStyle={{ color: 'var(--text-secondary, #8b8ba0)', marginBottom: 4 }}
+          contentStyle={TOOLTIP_STYLE}
+          labelStyle={TOOLTIP_LABEL_STYLE}
           labelFormatter={fmtTooltipTime}
           formatter={(value: unknown) => Number(value).toLocaleString()}
         />
@@ -409,7 +414,7 @@ function SuccessErrorChart({ data, series }: { data: Record<string, string | num
           onMouseEnter={legend.handleMouseEnter} onMouseLeave={legend.handleMouseLeave} onClick={legend.handleClick} />
         {series.map((s) => (
           <Area key={s} type="linear" dataKey={s} name={s}
-            stroke={colorMap[s] ?? '#89b4fa'} fill={colorMap[s] ?? '#89b4fa'} fillOpacity={0.15} strokeWidth={2}
+            stroke={colorMap[s] ?? 'var(--chart-1)'} fill={colorMap[s] ?? 'var(--chart-1)'} fillOpacity={0.15} strokeWidth={2}
             opacity={legend.opacity(s)} />
         ))}
       </AreaChart>
@@ -423,18 +428,18 @@ function SuccessRateChart({ data }: { data: Record<string, string | number>[] })
   return (
     <ResponsiveContainer width="100%" height={220}>
       <AreaChart data={data} margin={{ top: 8, right: 24, bottom: 0, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-        <XAxis dataKey="time" tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtChartTime} stroke="rgba(255,255,255,0.08)" minTickGap={40} />
-        <YAxis tick={{ fill: '#8b8ba0', fontSize: 11 }} domain={[0, 100]} tickFormatter={(v) => `${Number(v)}%`} stroke="rgba(255,255,255,0.08)" width={48} />
+        <CartesianGrid strokeDasharray="3 3" stroke={GRID} />
+        <XAxis dataKey="time" tick={TICK} tickFormatter={fmtChartTime} stroke={GRID} minTickGap={40} />
+        <YAxis tick={TICK} domain={[0, 100]} tickFormatter={(v) => `${Number(v)}%`} stroke={GRID} width={48} />
         <RTooltip
-          contentStyle={{ background: 'var(--bg-surface, #111118)', border: '1px solid var(--border, rgba(255,255,255,0.08))', borderRadius: 8, fontSize: 12 }}
-          labelStyle={{ color: 'var(--text-secondary, #8b8ba0)', marginBottom: 4 }}
+          contentStyle={TOOLTIP_STYLE}
+          labelStyle={TOOLTIP_LABEL_STYLE}
           labelFormatter={fmtTooltipTime}
           formatter={(value: unknown) => `${Number(value).toFixed(2)}%`}
         />
         <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8, cursor: 'pointer' }}
           onMouseEnter={legend.handleMouseEnter} onMouseLeave={legend.handleMouseLeave} onClick={legend.handleClick} />
-        <Area type="linear" dataKey="SuccessRate" name="Success Rate" stroke="#a6e3a1" fill="#a6e3a1" fillOpacity={0.15} strokeWidth={2}
+        <Area type="linear" dataKey="SuccessRate" name="Success Rate" stroke="var(--success)" fill="var(--success)" fillOpacity={0.15} strokeWidth={2}
           opacity={legend.opacity('SuccessRate')} />
       </AreaChart>
     </ResponsiveContainer>
@@ -447,20 +452,20 @@ function ThrottlingChart({ data }: { data: Record<string, string | number>[] }) 
   return (
     <ResponsiveContainer width="100%" height={220}>
       <AreaChart data={data} margin={{ top: 8, right: 24, bottom: 0, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-        <XAxis dataKey="time" tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtChartTime} stroke="rgba(255,255,255,0.08)" minTickGap={40} />
-        <YAxis tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtNum} stroke="rgba(255,255,255,0.08)" width={48} />
+        <CartesianGrid strokeDasharray="3 3" stroke={GRID} />
+        <XAxis dataKey="time" tick={TICK} tickFormatter={fmtChartTime} stroke={GRID} minTickGap={40} />
+        <YAxis tick={TICK} tickFormatter={fmtNum} stroke={GRID} width={48} />
         <RTooltip
-          contentStyle={{ background: 'var(--bg-surface, #111118)', border: '1px solid var(--border, rgba(255,255,255,0.08))', borderRadius: 8, fontSize: 12 }}
-          labelStyle={{ color: 'var(--text-secondary, #8b8ba0)', marginBottom: 4 }}
+          contentStyle={TOOLTIP_STYLE}
+          labelStyle={TOOLTIP_LABEL_STYLE}
           labelFormatter={fmtTooltipTime}
           formatter={(value: unknown) => Number(value).toLocaleString()}
         />
         <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8, cursor: 'pointer' }}
           onMouseEnter={legend.handleMouseEnter} onMouseLeave={legend.handleMouseLeave} onClick={legend.handleClick} />
-        <Area type="linear" dataKey="Total" name="Total Requests" stroke="#89b4fa" fill="#89b4fa" fillOpacity={0.10} strokeWidth={2}
+        <Area type="linear" dataKey="Total" name="Total Requests" stroke="var(--chart-1)" fill="var(--chart-1)" fillOpacity={0.10} strokeWidth={2}
           opacity={legend.opacity('Total')} />
-        <Area type="linear" dataKey="Throttled" name="Throttled (429)" stroke="#f38ba8" fill="#f38ba8" fillOpacity={0.20} strokeWidth={2}
+        <Area type="linear" dataKey="Throttled" name="Throttled (429)" stroke="var(--danger)" fill="var(--danger)" fillOpacity={0.20} strokeWidth={2}
           opacity={legend.opacity('Throttled')} />
       </AreaChart>
     </ResponsiveContainer>
@@ -473,12 +478,12 @@ function TimeLineChart({ data, series }: { data: Record<string, string | number>
   return (
     <ResponsiveContainer width="100%" height={220}>
       <LineChart data={data} margin={{ top: 8, right: 24, bottom: 0, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-        <XAxis dataKey="time" tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtChartTime} stroke="rgba(255,255,255,0.08)" minTickGap={40} />
-        <YAxis tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtNum} stroke="rgba(255,255,255,0.08)" width={48} />
+        <CartesianGrid strokeDasharray="3 3" stroke={GRID} />
+        <XAxis dataKey="time" tick={TICK} tickFormatter={fmtChartTime} stroke={GRID} minTickGap={40} />
+        <YAxis tick={TICK} tickFormatter={fmtNum} stroke={GRID} width={48} />
         <RTooltip
-          contentStyle={{ background: 'var(--bg-surface, #111118)', border: '1px solid var(--border, rgba(255,255,255,0.08))', borderRadius: 8, fontSize: 12 }}
-          labelStyle={{ color: 'var(--text-secondary, #8b8ba0)', marginBottom: 4 }}
+          contentStyle={TOOLTIP_STYLE}
+          labelStyle={TOOLTIP_LABEL_STYLE}
           itemStyle={{ padding: '1px 0' }}
           labelFormatter={fmtTooltipTime}
           formatter={(value: unknown) => Number(value).toLocaleString()}
@@ -504,12 +509,12 @@ function RateMultiChart({ data, series }: { data: Record<string, string | number
   return (
     <ResponsiveContainer width="100%" height={220}>
       <LineChart data={data} margin={{ top: 8, right: 24, bottom: 0, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-        <XAxis dataKey="time" tick={{ fill: '#8b8ba0', fontSize: 11 }} tickFormatter={fmtChartTime} stroke="rgba(255,255,255,0.08)" minTickGap={40} />
-        <YAxis tick={{ fill: '#8b8ba0', fontSize: 11 }} domain={[0, 'auto']} tickFormatter={(v) => `${Number(v).toFixed(0)}%`} stroke="rgba(255,255,255,0.08)" width={48} />
+        <CartesianGrid strokeDasharray="3 3" stroke={GRID} />
+        <XAxis dataKey="time" tick={TICK} tickFormatter={fmtChartTime} stroke={GRID} minTickGap={40} />
+        <YAxis tick={TICK} domain={[0, 'auto']} tickFormatter={(v) => `${Number(v).toFixed(0)}%`} stroke={GRID} width={48} />
         <RTooltip
-          contentStyle={{ background: 'var(--bg-surface, #111118)', border: '1px solid var(--border, rgba(255,255,255,0.08))', borderRadius: 8, fontSize: 12 }}
-          labelStyle={{ color: 'var(--text-secondary, #8b8ba0)', marginBottom: 4 }}
+          contentStyle={TOOLTIP_STYLE}
+          labelStyle={TOOLTIP_LABEL_STYLE}
           itemStyle={{ padding: '1px 0' }}
           labelFormatter={fmtTooltipTime}
           formatter={(value: unknown) => `${Number(value).toFixed(2)}%`}
