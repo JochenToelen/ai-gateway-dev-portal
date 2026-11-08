@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { PublicClientApplication, EventType } from '@azure/msal-browser';
 import { MsalProvider } from '@azure/msal-react';
-import { msalConfig } from './config/msal';
+import { loginRequest, msalConfig } from './config/msal';
 import { TokenAuthProvider } from './context/TokenAuthContext';
 import App from './App';
 import './index.css';
@@ -22,9 +22,20 @@ async function startApp() {
   // Handle redirect responses (loginRedirect / acquireTokenRedirect).
   await msalInstance.handleRedirectPromise();
 
-  const accounts = msalInstance.getAllAccounts();
+  let accounts = msalInstance.getAllAccounts();
   if (accounts.length > 0) {
     msalInstance.setActiveAccount(accounts[0]);
+  } else if (!sessionStorage.getItem('azure_access_token') && !localStorage.getItem('pendingLogin')) {
+    try {
+      const result = await msalInstance.ssoSilent({
+        scopes: loginRequest.scopes,
+        redirectUri: `${window.location.origin}/sso-silent.html`,
+      });
+      msalInstance.setActiveAccount(result.account);
+      accounts = msalInstance.getAllAccounts();
+    } catch {
+      // Keep the existing interactive login page as the fallback.
+    }
   }
 
   // Listen for sign-in events

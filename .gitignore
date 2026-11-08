@@ -30,3 +30,8 @@ dist-ssr
 
 # Local AI model pricing file (development)
 /data
+
+# AZD environment state can contain deployment settings and secrets
+.azure/*
+!.azure/
+!.azure/deployment-plan.md

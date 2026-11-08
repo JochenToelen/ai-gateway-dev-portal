@@ -36,6 +36,9 @@ The portal ships with working pages that cover the core Azure API Management AI 
 | Page | What it does |
 |---|---|
 | **Dashboard** | At-a-glance KPI tiles (requests, tokens, latency, availability) with trend indicators against a configurable baseline (day/week/month/year). Tokens-by-subscription line chart with interactive legend. Resource list tiles for Inference APIs, MCP Servers, A2A Integrations, and Subscriptions with click-through navigation. |
+| **AI Gateway consumption** | Executive view of token consumption and *estimated* model cost per model and subscription, based on the AI model pricing table. |
+| **AI Model Pricing** | Maintain effective-dated token prices (input, cached input, output per 1M tokens) with an audit trail; stored as JSON in blob storage (or a local file). See [AI model pricing](#ai-model-pricing-and-estimated-cost). |
+| **Registry** | Browse API assets in the API Center linked to your APIM instance. |
 | **Model providers** | Browse AI backends with auto-detected provider types (Foundry, Azure OpenAI, OpenAI, Gemini, Anthropic, Bedrock, Hugging Face). Inspect pool members, weights, priorities, and circuit breaker rules. |
 | **Inference APIs** | List inference APIs with provider badges, tag filtering, and detail panels showing subscriptions, revisions, releases, and products. |
 | **MCP servers** | Manage Model Context Protocol servers and API-backed MCP endpoints. Filter by source type. |
@@ -226,21 +229,70 @@ npx @azure/static-web-apps-cli deploy ./dist \
   --env default
 ```
 
-### Option B: Azure Container Apps
+### Option B: Azure Container Apps (AZD, scale to zero)
 
-No Dockerfile needed:
+`infra/main.bicep` (Azure Verified Modules) reuses the existing resource group resources: Log Analytics workspace, Consumption Container Apps environment, Basic Container Registry, user-assigned managed identity (AcrPull + **Storage Blob Data Contributor** on pricing storage), and the Container App (0–2 replicas, 0.25 vCPU / 0.5 Gi). AZD builds the image remotely in ACR, so a local Docker installation is not required. The app reads pricing from `https://stoaigwinsightswc001.blob.core.windows.net/ai-model-pricing/ai-model-pricing.json`.
 
-```bash
-az containerapp up \
-  --name ai-gateway-dev-portal \
-  --resource-group <RESOURCE_GROUP> \
-  --location <LOCATION> \
-  --source ./dist \
-  --ingress external \
-  --target-port 80
+**Prerequisites:** Azure Developer CLI, Azure CLI authentication, `Contributor` + `User Access Administrator` (or Owner) on the resource group, the pricing storage account in the same resource group, and an Entra app registration.
+
+**First-time setup (PowerShell):**
+
+```powershell
+azd auth login
+azd env new aigatewayinsights-dev --no-prompt
+azd env set AZURE_SUBSCRIPTION_ID 6baf7cb2-2fb1-4636-8499-0ec168da856a
+azd env set AZURE_LOCATION swedencentral
+azd env set AZURE_RESOURCE_GROUP rg-aigatewayinsights-dev
+azd env set VITE_AZURE_CLIENT_ID <YOUR_CLIENT_ID>
+azd env set PRICING_EDITORS "admin@contoso.com"
+azd provision auth-vault --preview --no-prompt
+azd provision auth-vault --no-prompt
 ```
 
-After deploying, add the app URL as a SPA redirect URI (see step 1).
+The `auth-vault` layer creates only the Key Vault and grants the existing Container App identity `Key Vault Secrets User`. Find the vault name in `azd env get-values`, then add the Entra app registration client secret to the vault as `aca-auth-client-secret` using the Azure portal. Do not pass the secret through a shell command, repository file, or chat. Set `AUTH_CLIENT_SECRET_URI` to the resulting versioned secret URI. Add `https://<app-fqdn>` and `https://<app-fqdn>/sso-silent.html` as SPA redirect URIs, plus `https://<app-fqdn>/.auth/login/aad/callback` as the Web redirect URI. Enable ID-token issuance for the app registration's hybrid flow; leave access-token issuance disabled unless otherwise required. The portal silently requests its Azure Management token from the existing Entra session and retains the sign-in form if silent SSO is unavailable. The app layer requires a non-empty client ID and secret URI, so it cannot deploy without authentication configured. Finish with:
+
+```powershell
+azd env set AUTH_CLIENT_SECRET_URI "https://<vault-name>.vault.azure.net/secrets/aca-auth-client-secret/<version>"
+azd provision app --preview --no-prompt
+azd up --no-prompt
+```
+
+The `.azure` environment files are ignored by Git. Never put the client secret in the repository or chat.
+
+**Legacy manual deployment (Bicep/PowerShell):** This route does not configure Container Apps Entra authentication; use AZD when the portal needs the protected access path.
+
+```powershell
+az login
+./infra/deploy.ps1 -ClientId <YOUR_CLIENT_ID> -PricingEditors "admin@contoso.com"
+```
+
+The script deploys the infrastructure with a placeholder image, builds the portal image in ACR (`az acr build`, baking in `VITE_AZURE_CLIENT_ID`), redeploys the app with that image on port 8080 and prints the URL.
+
+**Manual steps (equivalent):**
+
+```powershell
+az account set --subscription 6baf7cb2-2fb1-4636-8499-0ec168da856a
+$rg = "rg-aigatewayinsights-dev"
+
+# 1. Infrastructure
+az deployment group create -g $rg -f infra/main.bicep -p infra/main.bicepparam
+
+# 2. Build the image in ACR
+$acr = az acr list -g $rg --query "[0].name" -o tsv
+az acr build -r $acr -t ai-gateway-dev-portal:1 --build-arg VITE_AZURE_CLIENT_ID=<YOUR_CLIENT_ID> .
+
+# 3. Run the real image
+az deployment group create -g $rg -f infra/main.bicep -p infra/main.bicepparam `
+  -p containerImage="$acr.azurecr.io/ai-gateway-dev-portal:1" targetPort=8080 pricingEditors="admin@contoso.com"
+```
+
+**After deploying with the legacy route:**
+
+1. Add `https://<containerAppFqdn>` (deployment output) as a SPA redirect URI on the Entra app registration (step 1).
+2. Make sure the blob `ai-model-pricing/ai-model-pricing.json` exists or let the first save in **AI Model Pricing** create it.
+3. Restrict who can reach the app with Container Apps authentication if `pricingEditors` is empty.
+
+AZD infrastructure and parameters are in `infra/azd/`; the legacy manual route continues to use `infra/main.bicep` and `infra/main.bicepparam`.
 
 ---
 
