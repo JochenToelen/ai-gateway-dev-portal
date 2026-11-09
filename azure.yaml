@@ -22,3 +22,4 @@ services:
       remoteBuild: true
       buildArgs:
         - VITE_AZURE_CLIENT_ID=${VITE_AZURE_CLIENT_ID}
+        - VITE_AZURE_TENANT_ID=${VITE_AZURE_TENANT_ID}

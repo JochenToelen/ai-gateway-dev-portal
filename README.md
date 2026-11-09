@@ -244,6 +244,7 @@ azd env set AZURE_SUBSCRIPTION_ID 6baf7cb2-2fb1-4636-8499-0ec168da856a
 azd env set AZURE_LOCATION swedencentral
 azd env set AZURE_RESOURCE_GROUP rg-aigatewayinsights-dev
 azd env set VITE_AZURE_CLIENT_ID <YOUR_CLIENT_ID>
+azd env set VITE_AZURE_TENANT_ID <APP_REGISTRATION_TENANT_ID>
 azd env set PRICING_EDITORS "admin@contoso.com"
 azd provision auth-vault --preview --no-prompt
 azd provision auth-vault --no-prompt

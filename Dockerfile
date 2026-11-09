@@ -6,6 +6,8 @@ COPY . .
 # Entra app registration is baked in at build time, e.g. --build-arg VITE_AZURE_CLIENT_ID=...
 ARG VITE_AZURE_CLIENT_ID
 ENV VITE_AZURE_CLIENT_ID=$VITE_AZURE_CLIENT_ID
+ARG VITE_AZURE_TENANT_ID
+ENV VITE_AZURE_TENANT_ID=$VITE_AZURE_TENANT_ID
 RUN npm run build
 
 FROM node:22-alpine

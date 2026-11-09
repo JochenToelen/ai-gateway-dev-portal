@@ -12,7 +12,9 @@ export default function LoginPage() {
   const [showToken, setShowToken] = useState(false);
   const [tokenValue, setTokenValue] = useState('');
   const [cmdCopied, setCmdCopied] = useState(false);
-  const [tenantHint, setTenantHint] = useState(localStorage.getItem('customTenant') ?? '');
+  const [tenantHint, setTenantHint] = useState(
+    localStorage.getItem('pendingLogin') ? localStorage.getItem('customTenant') ?? '' : '',
+  );
   const [clientIdHint, setClientIdHint] = useState(localStorage.getItem('customClientId') ?? '');
   const [showClientId, setShowClientId] = useState(!!localStorage.getItem('customClientId'));
   const [showTenantMenu, setShowTenantMenu] = useState(false);
@@ -43,7 +45,7 @@ export default function LoginPage() {
     setSigningIn(true);
     setError(null);
     try {
-      const tenant = tenantHint.trim();
+      const tenant = tenantHint.trim() || (import.meta.env.VITE_AZURE_TENANT_ID ?? '').trim();
       const clientId = clientIdHint.trim();
       if (clientId && !tenant) {
         setError('A Tenant ID is required when providing a Client ID.');
